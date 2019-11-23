@@ -26,7 +26,9 @@ class Objeto(object):
         for i in range(len(self.data.vaos)):
             self.list_Model.append(glm.mat4(1.0))
 
-        self.falange = 19
+        self.falange = -1
+        self.dir = 1
+        self.x = 1.0; self.y = 0.0; self.z = 0.0
 
     def loadData(self):
         VBO = glGenBuffers(len(self.data.vaos))
@@ -60,6 +62,7 @@ class Objeto(object):
 
     def init(self):
         defDepth(0.0, 0.0, 0.0)
+
         self.loadData()
 
         # COMPILE SHADERS
@@ -73,55 +76,70 @@ class Objeto(object):
         
         # ACTIVE PROGRAM
         glUseProgram(self.programId)
-        self.moveHand()
+        self.moveObject(19, 1, False)
 
         glutSwapBuffers()
 
     def keyboard(self, k, x, y):
         key = k.decode("utf-8")
-        if key == 'q':
-            sys.exit()
-        elif key == '0':
-            self.falange = 19
-        elif key == '1':
-            self.falange = 0
-        elif key == '2':
-            self.falange = 4
-        elif key == '3':
-            self.falange = 8
-        elif key == '4':
-            self.falange = 12
-        elif key == '5':
-            self.falange = 16
-        elif key == '6':
+        if key == '+':
+            self.x *= -1.0; self.y *= -1.0; self.z *= -1.0
+            self.falange = -1
+        elif key == 'a':
             self.falange = 1
-        elif key == '7':
+        elif key == 's':
+            self.falange = 2
+        elif key == 'd':
+            self.falange = 3
+        elif key == 'f':
             self.falange = 5
-        elif key == '7':
+        elif key == 'g':
+            self.falange = 6
+        elif key == 'h':
+            self.falange = 7
+        elif key == 'j':
             self.falange = 9
-        elif key == '9':
+        elif key == 'k':
+            self.falange = 10
+        elif key == 'l':
+            self.falange = 11
+        elif key == 'c':
             self.falange = 13
-        
+        elif key == 'v':
+            self.falange = 14
+        elif key == 'b':
+            self.falange = 15
+        elif key == 'n':
+            self.falange = 17
+        elif key == 'm':
+            self.falange = 18
+        elif key == 'x':
+            self.x = 1.0; self.y = 0.0; self.z = 0.0
+            self.falange = 19
+        elif key == 'y':
+            self.x = 0.0; self.y = 1.0; self.z = 0.0
+            self.falange = 19
+        elif key == 'z':
+            self.x = 0.0; self.y = 0.0; self.z = 1.0
+            self.falange = 19
+        else:
+            self.falange = -1
         glutPostRedisplay()
 
-    def moveHand(self):
-
-        self.moveObject(19, 1)
-        self.moveFalange()
-
-    def moveFalange(self):
-        self.moveObject(0, 4)
-        self.moveObject(4, 4)
-        self.moveObject(8, 4)
-        self.moveObject(12, 4)
-        self.moveObject(16, 3)
+    def moveFalange(self, active):
+        self.moveObject(0, 4, active)
+        self.moveObject(4, 4, active)
+        self.moveObject(8, 4, active)
+        self.moveObject(12, 4, active)
+        self.moveObject(16, 3, active)
     
-    def moveObject(self, index, value):
+    def moveObject(self, index, value, active):
         if value==0:
             return
         else:        
-            if index == self.falange:
-                self.list_Model[index] = glm.rotate(self.list_Model[index], 0.03141592, glm.vec3(1.0, 0.0, 0.0))
+            if index == self.falange or active == True:
+                self.list_Model[index] = glm.rotate(self.list_Model[index], 0.03141592, glm.vec3(self.x, self.y, self.z))
+                active = True
 
             glBindVertexArray(self.list_VAO[index])
 
@@ -133,7 +151,10 @@ class Objeto(object):
             glUniformMatrix4fv(matrixId, 1, GL_FALSE, MVP)
             glDrawArrays(GL_TRIANGLES, 0, len(self.data.vaos[index]))
 
-            self.moveObject(index+1, value-1)
+            if index == 19:
+                self.moveFalange(active)
+            else:
+                self.moveObject(index+1, value-1, active)
 
 
 data = CPN("shader/vsObj.vs", "shader/fsObj.fs", "data/Hand.txt", False)
