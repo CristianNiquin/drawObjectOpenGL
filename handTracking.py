@@ -5,7 +5,7 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GLUT.freeglut import *
 from functionGL import *
-from loadFiles2 import *
+from loadFilesVaos import *
 import math, sys, glm
 import numpy as np
 
